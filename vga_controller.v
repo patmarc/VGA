@@ -11,8 +11,8 @@ module vga_controller
 	  
 	  (input reset,
 	   input clk,
-		inout hsync,
-		inout vsync,
+		output h_sync_out,
+		output v_sync_out,
 		output [2:0] rgb);
 	
 	
@@ -20,6 +20,8 @@ module vga_controller
 	reg v_period = v_size + v_synctime + v_porch;
 	reg [10:0] h_counter;
 	reg [9:0]  v_counter;
+	reg h_sync;
+	reg v_sync;
 	
 	always @(clk, reset) begin
 		if (reset == 1) begin
@@ -42,9 +44,9 @@ module vga_controller
 			v_counter = 0;
 		end
 		else begin
-			if(hsync == 1) begin
+			if(h_sync == 1) begin
 				if(v_counter < v_period) begin
-					v_counter = v_counter = 1;
+					v_counter = v_counter + 1;
 				end
 				else begin
 					v_counter = 0;
@@ -57,7 +59,39 @@ module vga_controller
 		if(reset == 1) begin
 			h_sync = 0;
 		end
-		
+		else begin
+			if (clk == 1) begin
+				if(h_counter >= h_size) begin
+					if (h_counter < (h_size +h_synctime)) begin
+						h_sync = 1;
+					end
+				end
+				else begin
+					h_sync = 0;
+				end
+			end
+		end
 	end
+	
+	always @ (h_sync, reset) begin
+		if(reset == 1)begin
+			v_sync = 0;
+		end
+		else begin
+			if (h_sync == 1) begin
+				if(v_counter >= v_size) begin 
+					if (v_counter <(v_size + v_synctime)) begin
+						v_sync = 1;
+					end
+				end
+				else begin
+					v_sync = 0;
+				end
+			end
+		end
+	end
+	
+	assign h_sync_out = h_sync;
+	assign v_sync_out = v_sync;
 
 endmodule

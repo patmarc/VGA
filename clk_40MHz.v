@@ -1,22 +1,19 @@
 `timescale 10ns / 100ps
 
 module clk_40MHz
-	(input clk_in,
+	(input  clk_in,
 	 output clk_out);
 	 
-	 reg 			sub_wire0;
-	 reg [1:0] 	sub_wire1;
-	 reg 			sub_wire2;
-	 reg [3:0] 	sub_wire3;
+	 wire				sub_wire0;
+	 wire [1:0]		sub_wire1;
+	 wire  			sub_wire2 = 0;
+	 wire [4:0] 	sub_wire3;
 	 
-	 always begin
-		sub_wire2 = 0;
-		sub_wire0 = clk_in;
-		sub_wire1 = sub_wire2[0] & sub_wire0;
-		clk_out = sub_wire3[0];
-	 
-	 end
-	 
+
+		assign clk_out = sub_wire3[0];
+		assign sub_wire0 = clk_in;
+		assign sub_wire1 = sub_wire2 & sub_wire0;
+	
 	 altpll 
 		#(.bandwidth_type("AUTO"),
 		  .clk0_divide_by(1),
@@ -73,7 +70,7 @@ module clk_40MHz
 		  .port_extclk3("PORT_UNUSED"),
 		  .width_clock(5))
 	
-	 pll (.inclk (sub_wire1),
+	 pll (.inclk (clk_in),
 			.clk (sub_wire3));
 
 endmodule
